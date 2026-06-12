@@ -783,17 +783,6 @@ with st.sidebar:
     st.caption("Data: UNHCR Uganda / OPM proGres")
     st.caption("Snapshot: 31 March 2026")
 
-    # ── Download filtered data ──────────────────────────────────────────
-    st.markdown("---")
-    csv_data = df_filtered.to_csv(index=False).encode("utf-8") if len(df_filtered) > 0 else b""
-    st.download_button(
-        label="Download filtered data (CSV)",
-        data=csv_data,
-        file_name="refugee_filtered.csv",
-        mime="text/csv",
-        disabled=len(df_filtered) == 0,
-    )
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Apply filters
@@ -943,6 +932,17 @@ if len(df_filtered) > 0:
             )
 
 st.markdown("---")
+
+# ── Download filtered data ─────────────────────────────────────────────
+csv_data = df_filtered.to_csv(index=False).encode("utf-8") if len(df_filtered) > 0 else b""
+st.sidebar.markdown("---")
+st.sidebar.download_button(
+    label="Download filtered data (CSV)",
+    data=csv_data,
+    file_name="refugee_filtered.csv",
+    mime="text/csv",
+    disabled=len(df_filtered) == 0,
+)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
