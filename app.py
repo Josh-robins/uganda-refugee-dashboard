@@ -17,7 +17,7 @@ st.set_page_config(
     page_title="Uganda Refugee Dashboard",
     page_icon=":bar_chart:",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="auto",
 )
 
 # WarChild red styling for region KPI cards
@@ -54,6 +54,48 @@ st.markdown(
     }
     [data-testid="column"] > div > div > div:has(.metric-warchild) {
         padding: 4px !important;
+    }
+
+    /* ── Gender symbols as text (not emoji) ────────────────────────────── */
+    .gender-symbol {
+        font-variant-emoji: text;
+        font-family: "DejaVu Sans", "Arial Unicode MS", sans-serif;
+    }
+
+    /* ── Print optimizations ─────────────────────────────────────────── */
+    @media print {
+        @page {
+            size: landscape;
+            margin: 8mm;
+        }
+        .main .block-container {
+            max-width: 100% !important;
+            padding: 0.3rem !important;
+        }
+        [data-testid="stMetricValue"] {
+            overflow: visible !important;
+            text-overflow: clip !important;
+            white-space: normal !important;
+            font-size: 0.85rem !important;
+        }
+        [data-testid="stMetricLabel"] {
+            font-size: 0.65rem !important;
+        }
+        [data-testid="stMetricDelta"] {
+            font-size: 0.65rem !important;
+        }
+        section[data-testid="stSidebar"] {
+            display: none !important;
+        }
+        .element-container,
+        .stPlotlyChart,
+        .stColumn {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+        .row-widget.stColumns {
+            gap: 4px !important;
+        }
     }
     </style>
     """,
@@ -223,7 +265,7 @@ def chart_age_pyramid(df_):
 
     fig = go.Figure()
     fig.add_trace(go.Bar(
-        y=AGE_LABELS, x=-fem_vals, name="Female", orientation="h",
+        y=AGE_LABELS, x=-fem_vals, name="\u2640 Female", orientation="h",
         marker_color=BLUE,
         hovertemplate="%{y}<br>Female: %{customdata:,.0f} (%{x:,.0f})<extra></extra>",
         customdata=fem_vals,
@@ -231,7 +273,7 @@ def chart_age_pyramid(df_):
         textposition="outside", textfont=dict(color=BLUE, size=9),
     ))
     fig.add_trace(go.Bar(
-        y=AGE_LABELS, x=mal_vals, name="Male", orientation="h",
+        y=AGE_LABELS, x=mal_vals, name="\u2642 Male", orientation="h",
         marker_color=TEAL,
         hovertemplate="%{y}<br>Male: %{customdata:,.0f} (%{x:,.0f})<extra></extra>",
         customdata=mal_vals,
@@ -296,12 +338,12 @@ def chart_age_composition(df_):
 def chart_female_vs_male(df_):
     fig = go.Figure()
     fig.add_trace(go.Bar(
-        x=df_["Settlement"], y=df_["Total Female"], name="Female",
+        x=df_["Settlement"], y=df_["Total Female"], name="\u2640 Female",
         marker_color=BLUE,
         hovertemplate="Settlement: %{x}<br>Female: %{y:,.0f}<extra></extra>",
     ))
     fig.add_trace(go.Bar(
-        x=df_["Settlement"], y=df_["Total Male"], name="Male",
+        x=df_["Settlement"], y=df_["Total Male"], name="\u2642 Male",
         marker_color=TEAL,
         hovertemplate="Settlement: %{x}<br>Male: %{y:,.0f}<extra></extra>",
     ))
@@ -379,7 +421,7 @@ def chart_gender_summary(df_):
 
     fig = go.Figure(go.Bar(
         x=[total_f, total_m],
-        y=["Female", "Male"],
+        y=["\u2640 Female", "\u2642 Male"],
         orientation="h",
         marker_color=[BLUE, TEAL],
         text=[f"{total_f/1e6:.2f}M", f"{total_m/1e6:.2f}M"],
@@ -389,7 +431,7 @@ def chart_gender_summary(df_):
     fig.update_layout(
         title=dict(text="Gender total", font=dict(size=14)),
         xaxis=dict(visible=False),
-        yaxis=dict(categoryorder="array", categoryarray=["Male", "Female"]),
+        yaxis=dict(categoryorder="array", categoryarray=["\u2642 Male", "\u2640 Female"]),
         template=chart_template(),
         height=130,
         margin=dict(l=10, r=20, t=30, b=10),
@@ -732,11 +774,11 @@ def chart_ngo_targeting(df_):
 # ═══════════════════════════════════════════════════════════════════════════
 
 def show_chart(fig, len_df, empty_msg="No data matches the current filters."):
-    """Display a Plotly chart or a clean info message if empty."""
+    """Display a Plotly chart with no mode bar (no zoom/pan to confuse users)."""
     if len_df == 0:
         st.info(empty_msg)
     else:
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
 
 # ── Sidebar — all filters ──────────────────────────────────────────────────
@@ -881,6 +923,11 @@ if is_origin_filtered and len(df_filtered) > 0 and len(orig_filtered) > 0:
 # KPI metric cards
 # ═══════════════════════════════════════════════════════════════════════════
 
+st.markdown(
+    "# Uganda Refugee Settlement Dashboard  \n"
+    "Population overview by settlement, gender, age group and country of origin — "
+    "UNHCR Uganda / OPM proGres, 31 March 2026"
+)
 st.markdown("## Key Indicators")
 
 ft_grand   = df_filtered["Grand Total"].sum()
@@ -892,9 +939,9 @@ ft_child   = df_filtered["Child_0_17"].sum()
 
 k1, k2, k3, k4, k5, k6 = st.columns(6)
 k1.metric("Total Refugees", f"{ft_grand:,.0f}")
-k2.metric("Female", f"{ft_female:,.0f}",
+k2.metric("\u2640 Female", f"{ft_female:,.0f}",
           delta=f"{ft_female/ft_grand*100:.1f}%" if ft_grand else None)
-k3.metric("Male", f"{ft_male:,.0f}",
+k3.metric("\u2642 Male", f"{ft_male:,.0f}",
           delta=f"{ft_male/ft_grand*100:.1f}%" if ft_grand else None)
 k4.metric("Settlements", f"{len(df_filtered)}")
 k5.metric("Youth (18-35)", f"{ft_youth:,.0f}",
