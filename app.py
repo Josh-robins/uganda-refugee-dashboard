@@ -24,38 +24,50 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+    @media (max-width: 768px) {
+        .metric-warchild {
+            margin-bottom: 10px !important;
+        }
+    }
     .metric-warchild {
         background: #D01030;
         color: white;
-        padding: 12px 16px;
+        padding: 14px 12px;
         border-radius: 8px;
         text-align: center;
     }
     .metric-warchild label {
         color: rgba(255,255,255,0.8);
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        display: block;
+        margin-bottom: 2px;
     }
     .metric-warchild .value {
-        font-size: 1.6rem;
+        font-size: 1.5rem;
         font-weight: 700;
+        line-height: 1.3;
     }
     .metric-warchild .sub {
         font-size: 0.75rem;
         opacity: 0.7;
+        margin-top: 2px;
+    }
+    [data-testid="column"] > div > div > div:has(.metric-warchild) {
+        padding: 4px !important;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
-# ── Brand constants ────────────────────────────────────────────────────────
-BLUE   = "#185FA5"
-TEAL   = "#2A9D8F"
-ACCENT = "#D85A30"
+# ── Brand constants (WarChild-inspired palette) ────────────────────────────
+BLUE   = "#D01030"    # WarChild crimson — female bars, primary fills
+TEAL   = "#682934"    # Deep burgundy — male bars, secondary fills
+ACCENT = "#F05030"    # Bright red-orange — highlights, largest bar
 MUTED  = "#888780"
 
 AGE_GROUPS = ["0-4", "5-11", "12-17", "18-35", "36-59", "60+"]
 AGE_LABELS = ["0–4", "5–11", "12–17", "18–35", "36–59", "60+"]
-AGE_COLORS = sequential.Blues[3:9]  # 6-step medium-to-dark blues
+AGE_COLORS = sequential.OrRd[3:9]  # 6-step red-orange gradient for age groups
 
 FEM_COLS = ["0-4 Female","5-11 Female","12-17 Female",
             "18-35 Female","36-59 Female","60+ Female"]
