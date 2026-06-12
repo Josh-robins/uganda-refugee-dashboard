@@ -20,8 +20,33 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-
-
+# WarChild red styling for region KPI cards
+st.markdown(
+    """
+    <style>
+    .metric-warchild {
+        background: #D01030;
+        color: white;
+        padding: 12px 16px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .metric-warchild label {
+        color: rgba(255,255,255,0.8);
+        font-size: 0.85rem;
+    }
+    .metric-warchild .value {
+        font-size: 1.6rem;
+        font-weight: 700;
+    }
+    .metric-warchild .sub {
+        font-size: 0.75rem;
+        opacity: 0.7;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 # ── Brand constants ────────────────────────────────────────────────────────
 BLUE   = "#185FA5"
 TEAL   = "#2A9D8F"
@@ -293,14 +318,44 @@ def chart_age_donut(df_):
         marker=dict(colors=AGE_COLORS),
         hole=0.45,
         textinfo="percent+label",
+        textfont=dict(size=11),
         hovertemplate="%{label}: %{value:,.0f} (%{percent})<extra></extra>",
+        showlegend=False,
     ))
     fig.update_layout(
-        title=dict(text="Overall age-group share",
-                   font=dict(size=16)),
+        title=dict(text="Overall age-group share", font=dict(size=15)),
         template=chart_template(),
-        height=420,
-        margin=dict(l=10, r=10, t=40, b=30),
+        height=350, width=350,
+        margin=dict(l=10, r=10, t=40, b=10),
+        hoverlabel=hover_style(),
+    )
+    return fig
+
+
+# WarChild-inspired red palette for the regional breakdown
+WARCHILD_REDS = ["#D01030", "#682934", "#F05030"]
+
+def chart_regional_pie(df_):
+    """Donut chart — population share by region."""
+    grouped = df_.groupby("Region")["Grand Total"].sum().reset_index()
+    region_order = ["Western", "West Nile", "Central"]
+    grouped["Region"] = pd.Categorical(grouped["Region"], categories=region_order, ordered=True)
+    grouped = grouped.sort_values("Region")
+
+    fig = go.Figure(go.Pie(
+        values=grouped["Grand Total"], labels=grouped["Region"],
+        marker=dict(colors=WARCHILD_REDS),
+        hole=0.45,
+        textinfo="percent+label",
+        textfont=dict(size=11),
+        hovertemplate="<b>%{label}</b><br>Population: %{value:,.0f} (%{percent})<extra></extra>",
+        showlegend=False,
+    ))
+    fig.update_layout(
+        title=dict(text="Regional population breakdown", font=dict(size=15)),
+        template=chart_template(),
+        height=350, width=350,
+        margin=dict(l=10, r=10, t=40, b=10),
         hoverlabel=hover_style(),
     )
     return fig
@@ -728,6 +783,17 @@ with st.sidebar:
     st.caption("Data: UNHCR Uganda / OPM proGres")
     st.caption("Snapshot: 31 March 2026")
 
+    # ── Download filtered data ──────────────────────────────────────────
+    st.markdown("---")
+    csv_data = df_filtered.to_csv(index=False).encode("utf-8") if len(df_filtered) > 0 else b""
+    st.download_button(
+        label="Download filtered data (CSV)",
+        data=csv_data,
+        file_name="refugee_filtered.csv",
+        mime="text/csv",
+        disabled=len(df_filtered) == 0,
+    )
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Apply filters
@@ -856,6 +922,28 @@ o6.metric("Filtered Pop.", f"{demo_total:,.0f}",
 
 st.markdown("---")
 
+# ── Region-level KPIs (WarChild red) ──────────────────────────────────────
+if len(df_filtered) > 0:
+    region_totals = df_filtered.groupby("Region")["Grand Total"].sum()
+    region_settlements = df_filtered.groupby("Region")["Settlement"].nunique()
+    cols = st.columns(3)
+    for i, region in enumerate(["Western", "West Nile", "Central"]):
+        total = region_totals.get(region, 0)
+        n_sett = region_settlements.get(region, 0)
+        with cols[i]:
+            st.markdown(
+                f"""
+                <div class="metric-warchild">
+                    <label>{region}</label>
+                    <div class="value">{total:,.0f}</div>
+                    <div class="sub">{n_sett} settlement{'s' if n_sett != 1 else ''}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+st.markdown("---")
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Tabs
@@ -877,7 +965,11 @@ with tab1:
             show_chart(chart_settlement_totals(df_filtered), len(df_filtered))
         with col_right:
             show_chart(chart_gender_summary(df_filtered), len(df_filtered))
-            show_chart(chart_age_donut(df_filtered), len(df_filtered))
+            r1, r2 = st.columns(2)
+            with r1:
+                show_chart(chart_regional_pie(df_filtered), len(df_filtered))
+            with r2:
+                show_chart(chart_age_donut(df_filtered), len(df_filtered))
         st.markdown("---")
         show_chart(chart_age_pyramid(df_filtered), len(df_filtered))
 
