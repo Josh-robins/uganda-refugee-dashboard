@@ -20,17 +20,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Invert sidebar logo in dark mode
-st.markdown(
-    """
-    <style>
-    [data-testid="stSidebar"] img {
-        filter: invert(1);
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+
 
 # ── Brand constants ────────────────────────────────────────────────────────
 BLUE   = "#185FA5"
