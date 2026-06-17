@@ -1,6 +1,6 @@
 # BWAT.md
 
-This file provides guidance to Bwat when working with code in this repository.
+This file provides us with tech stack, and gotchas
 
 ## Tech Stack
 - Python 3 with Jupyter Notebook (`.ipynb`)
