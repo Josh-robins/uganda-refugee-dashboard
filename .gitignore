@@ -28,5 +28,8 @@ Desktop.ini
 # Streamlit
 .streamlit/secrets.toml
 
+# AI coding assistant
+BWAT.md
+
 # Temp / test files
 _test_*.py

@@ -56,10 +56,20 @@ st.markdown(
         padding: 4px !important;
     }
 
-    /* ── Gender symbols as text (not emoji) ────────────────────────────── */
-    .gender-symbol {
-        font-variant-emoji: text;
-        font-family: "DejaVu Sans", "Arial Unicode MS", sans-serif;
+    /* ── Responsive KPI metric sizing — no truncation ──────────────────── */
+    [data-testid="stMetricValue"] {
+        font-size: clamp(0.75rem, 1.5vw, 1.3rem) !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        white-space: nowrap !important;
+    }
+    [data-testid="stMetricLabel"] {
+        font-size: clamp(0.6rem, 1.0vw, 0.85rem) !important;
+    }
+    [data-testid="stMetricDelta"] {
+        font-size: clamp(0.6rem, 1.0vw, 0.8rem) !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
     }
 
     /* ── Print optimizations ─────────────────────────────────────────── */
