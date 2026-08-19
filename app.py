@@ -796,7 +796,9 @@ def show_chart(fig, len_df, empty_msg="No data matches the current filters."):
 with st.sidebar:
     # Logo with dark-mode support (CSS inverts for dark theme)
     try:
-        logo = Image.open("Logos/wcc.jpg")
+        #logo = Image.open("Logos/wcc.jpg")
+        logo = Image.open("Logos/canada.png")
+        #
         st.image(logo, width=110)
     except Exception:
         pass
