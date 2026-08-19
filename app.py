@@ -797,7 +797,8 @@ with st.sidebar:
     # Logo with dark-mode support (CSS inverts for dark theme)
     try:
         #logo = Image.open("Logos/wcc.jpg")
-        logo = Image.open("Logos/canada.png")
+        
+        logo = Image.open("Logos/uganda map logo.png")
         #
         st.image(logo, width=110)
     except Exception:
